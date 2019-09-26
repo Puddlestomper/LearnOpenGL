@@ -47,6 +47,8 @@ project "PuddleLOGL"
 	{
 		"%{prj.name}/src/**.h",
 		"%{prj.name}/src/**.cpp",
+		"%{prj.name}/assets/**.vs",
+		"%{prj.name}/assets/**.fs",
 --		"%{prj.name}/vendor/stb_image/**.h",
 --		"%{prj.name}/vendor/stb_image/**.cpp",
 --		"%{prj.name}/vendor/glm/glm/**.hpp",
