@@ -21,7 +21,7 @@ IncludeDir["GLFW"] = "vendor/GLFW/include"
 IncludeDir["GLAD"] = "vendor/GLAD/include"
 -- IncludeDir["ImGui"] = "vendor/imgui"
 -- IncludeDir["glm"] = "vendor/glm"
--- IncludeDir["stb_image"] = "vendor/stb_image"
+IncludeDir["stb_image"] = "%{prj.name}/vendor/stb_image"
 
 group "Dependencies"
 	include "vendor/GLFW"
@@ -49,8 +49,8 @@ project "PuddleLOGL"
 		"%{prj.name}/src/**.cpp",
 		"%{prj.name}/assets/**.vs",
 		"%{prj.name}/assets/**.fs",
---		"%{prj.name}/vendor/stb_image/**.h",
---		"%{prj.name}/vendor/stb_image/**.cpp",
+		"%{prj.name}/vendor/stb_image/**.h",
+		"%{prj.name}/vendor/stb_image/**.cpp",
 --		"%{prj.name}/vendor/glm/glm/**.hpp",
 --		"%{prj.name}/vendor/glm/glm/**.inl",
 	}
@@ -68,7 +68,7 @@ project "PuddleLOGL"
 		"%{IncludeDir.GLAD}",
 --		"%{IncludeDir.ImGui}",
 --		"%{IncludeDir.glm}",
---		"%{IncludeDir.stb_image}"
+		"%{IncludeDir.stb_image}"
 	}
 
 	links 
