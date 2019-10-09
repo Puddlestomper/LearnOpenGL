@@ -1,8 +1,12 @@
 #include "pudpch.h"
 
-#include "glad/glad.h"
-#include "GLFW/glfw3.h"
-#include "stb_image.h"
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+#include <stb_image.h>
+
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #include "Shader.h"
 
@@ -33,7 +37,7 @@ int main()
 	GLFWwindow* window = glfwCreateWindow(800, 600, "LearnOpenGL", NULL, NULL);
 	if (window == NULL)
 	{
-		std::cout << "Failed to create GLFW window" << std::endl;
+		std::cout << "Failed to create GLFW window\n";
 		glfwTerminate();
 		return -1;
 	}
@@ -50,6 +54,24 @@ int main()
 
 	//Set Callbacks
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+
+	//#######################################
+	//Vector stuff
+	//#######################################
+	{
+		glm::vec4 vec(1.0f, 0.0f, 0.0f, 1.0f);
+		glm::mat4 transTest(1.0f);
+		transTest = glm::translate(transTest, glm::vec3(1.0f, 1.0f, 0.0f));
+		vec = transTest * vec;
+		std::cout << "TransTest: " << vec.x << " " << vec.y << " " << vec.z << '\n';
+	}
+	//#######################################
+	//Box Transform
+	//#######################################
+
+	glm::mat4 trans(1.0f);
+	//trans = glm::rotate(trans, glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	//trans = glm::scale(trans, glm::vec3(0.5f, 0.5f, 0.5f));
 
 	//#######################################
 	//Load Texture
@@ -171,15 +193,24 @@ int main()
 	// VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
 	glBindVertexArray(0);
 
+	shader.Use();
+	shader.SetInt("texture0", 0);
+	shader.SetInt("texture1", 1);
+
 	//Unbind EBO
 	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 	// uncomment this call to draw in wireframe polygons.
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
+	glm::vec3 pos(0.0f, 0.0f, 0.0f);
+	glm::vec3 velocity(0.4f, 0.25f, 0.0f);
+
 	//#######################################
 	//Render Loop
 	//#######################################
+
+	float prevTime = glfwGetTime();
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -191,25 +222,65 @@ int main()
 		float time = glfwGetTime();
 		float green = (sin(time) / 2.0f) + 0.5f;
 
-		//int uniColourLocation = glGetUniformLocation(shaderProgram, "uniColour");
+		glBindVertexArray(VAO);
 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, textures[0]);
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, textures[1]);
-
+		
 		shader.Use();
-		shader.SetInt("texture0", 0);
-		shader.SetInt("texture1", 1);
+
+		//int uniColourLocation = glGetUniformLocation(shaderProgram, "uniColour");
 		//glUniform4f(uniColourLocation, 0.0f, green, 0.0f, 1.0f);
-		glBindVertexArray(VAO);
-		//glDrawArrays(GL_TRIANGLES, 0, 6);
+
+		trans = glm::mat4(1.0f);
+		trans = glm::translate(trans, glm::vec3(0.5f, -0.5f, 0.0f));
+		trans = glm::rotate(trans, time, glm::vec3(0.0f, 0.0f, 1.0f));
+		
+		shader.SetMat4f("transform", trans);
+
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+		trans = glm::mat4(1.0f);
+		trans = glm::translate(trans, glm::vec3(-0.5f, 0.5f, 0.0f));
+		float scale = abs(sin(time));
+		trans = glm::scale(trans, glm::vec3(scale, scale, 1.0f));
+
+		shader.SetMat4f("transform", trans);
+
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+		float delta = time - prevTime;
+		pos += delta * velocity;
+
+		if (pos.x >= 0.75f || pos.x <= -0.75f)
+		{
+			//std::cout << "X-BOUNCE\n";
+			velocity.x = -velocity.x;
+			//pos.x += velocity.x * delta;
+		}
+		if (pos.y >= 0.75f || pos.y <= -0.75f)
+		{
+			//std::cout << "Y-BOUNCE\n";
+			velocity.y = -velocity.y;
+			//pos.y += velocity.y * delta;
+		}
+
+		trans = glm::mat4(1.0f);
+		trans = glm::translate(trans, pos);
+		trans = glm::scale(trans, glm::vec3(0.5f, 0.5f, 0.5f));
+
+		shader.SetMat4f("transform", trans);
+
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 		//glBindVertexArray(0);
 		
 		glfwSwapBuffers(window);
 		glfwPollEvents();
+
+		prevTime = time;
 	}
 
 	//De-allocate when done
