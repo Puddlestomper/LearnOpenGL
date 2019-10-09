@@ -20,7 +20,7 @@ IncludeDir = {}
 IncludeDir["GLFW"] = "vendor/GLFW/include"
 IncludeDir["GLAD"] = "vendor/GLAD/include"
 -- IncludeDir["ImGui"] = "vendor/imgui"
--- IncludeDir["glm"] = "vendor/glm"
+IncludeDir["glm"] = "%{prj.name}/vendor/glm"
 IncludeDir["stb_image"] = "%{prj.name}/vendor/stb_image"
 
 group "Dependencies"
@@ -51,8 +51,8 @@ project "PuddleLOGL"
 		"%{prj.name}/assets/**.fs",
 		"%{prj.name}/vendor/stb_image/**.h",
 		"%{prj.name}/vendor/stb_image/**.cpp",
---		"%{prj.name}/vendor/glm/glm/**.hpp",
---		"%{prj.name}/vendor/glm/glm/**.inl",
+		"%{prj.name}/vendor/glm/glm/**.hpp",
+		"%{prj.name}/vendor/glm/glm/**.inl",
 	}
 
 	defines
@@ -67,7 +67,7 @@ project "PuddleLOGL"
 		"%{IncludeDir.GLFW}",
 		"%{IncludeDir.GLAD}",
 --		"%{IncludeDir.ImGui}",
---		"%{IncludeDir.glm}",
+		"%{IncludeDir.glm}",
 		"%{IncludeDir.stb_image}"
 	}
 
