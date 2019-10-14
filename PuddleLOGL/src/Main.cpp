@@ -9,18 +9,40 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "Shader.h"
+#include "Camera.h"
 
-//mix(texture(texture0, TexCoord), texture(texture1, TexCoord), 0.2)
+float prevTime = 0.0f;
+float dTime = 0.0f;
+
+int screenWidth = 800, screenHeight = 600;
+
+//#######################################
+//Camera
+//#######################################
+
+Camera cam((float)screenWidth/screenHeight);
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
 	glViewport(0, 0, width, height);
 }
 
+void mouse_callback(GLFWwindow* window, double xpos, double ypos)
+{
+	cam.OnMouseMoved(xpos, ypos);
+}
+
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+{
+	cam.OnMouseScrolled(xoffset, yoffset);
+}
+
 void processInput(GLFWwindow* window)
 {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
+
+	cam.OnUpdate(window, dTime);
 }
 
 int main()
@@ -34,7 +56,6 @@ int main()
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	//Create the Window
-	int screenWidth = 800, screenHeight = 600;
 	GLFWwindow* window = glfwCreateWindow(screenWidth, screenHeight, "LearnOpenGL", NULL, NULL);
 	if (window == NULL)
 	{
@@ -53,8 +74,12 @@ int main()
 
 	glViewport(0, 0, screenWidth, screenHeight);
 
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
 	//Set Callbacks
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+	glfwSetCursorPosCallback(window, mouse_callback);
+	glfwSetScrollCallback(window, scroll_callback);
 
 	//#######################################
 	//Vector stuff
@@ -66,14 +91,6 @@ int main()
 		vec = transTest * vec;
 		std::cout << "TransTest: " << vec.x << " " << vec.y << " " << vec.z << '\n';
 	}
-
-	//#######################################
-	//Box Transform
-	//#######################################
-
-	glm::mat4 trans(1.0f);
-	//trans = glm::rotate(trans, glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-	//trans = glm::scale(trans, glm::vec3(0.5f, 0.5f, 0.5f));
 
 	//#######################################
 	//Load Texture
@@ -272,7 +289,7 @@ int main()
 	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 	glEnable(GL_DEPTH_TEST);
 
-	float prevTime = glfwGetTime();
+	prevTime = glfwGetTime();
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -281,6 +298,7 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		float time = glfwGetTime();
+		dTime = time - prevTime;
 
 		glBindVertexArray(VAO);
 
@@ -293,12 +311,9 @@ int main()
 		//Model, View, Projection
 		//#######################################
 
-		glm::mat4 view(1.0f);
-		// note that we're translating the scene in the reverse direction of where we want to move
-		view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
-
-		glm::mat4 projection;
-		projection = glm::perspective(glm::radians(45.0f), (float)screenWidth / screenHeight, 0.1f, 100.0f);
+		glm::mat4 view = cam.GetView();
+		
+		glm::mat4 projection = cam.GetProjection();
 
 		//#######################################
 		//Set Uniforms
@@ -308,7 +323,6 @@ int main()
 
 		//int uniColourLocation = glGetUniformLocation(shaderProgram, "uniColour");
 		//glUniform4f(uniColourLocation, 0.0f, green, 0.0f, 1.0f);
-
 		
 		shader.SetMat4f("view", view);
 		shader.SetMat4f("projection", projection);
