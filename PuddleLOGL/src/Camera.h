@@ -10,6 +10,8 @@ public:
 	Camera(float aspectRatio, glm::vec3 cameraPos, glm::vec3 cameraFront, glm::vec3 cameraTop);
 	Camera(float aspectRatio);
 
+	glm::vec3 GetPosition() const;
+	
 	glm::mat4 GetView() const;
 	glm::mat4 GetProjection() const;
 	glm::mat4 GetViewProjection() const;
@@ -18,6 +20,8 @@ public:
 
 	void OnMouseScrolled(double xoffset, double yoffset);
 	void OnMouseMoved(double xpos, double ypos);
+
+	void Translate(const glm::vec3& change);
 private:
 	float aspectRatio;
 	glm::vec3 pos; //Positive z is out of the screen

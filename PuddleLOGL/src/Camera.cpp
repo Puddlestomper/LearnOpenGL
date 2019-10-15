@@ -10,6 +10,11 @@ Camera::Camera(float aspectRatio, glm::vec3 cameraPos, glm::vec3 cameraFront, gl
 Camera::Camera(float aspectRatio)
 	: aspectRatio(aspectRatio), pos(0.0f, 0.0f, 3.0f), front(0.0f, 0.0f, -1.0f), up(0.0f, 1.0f, 0.0f), pitch(0.0f), yaw(-90.0f), fov(45.0f), cameraSpeed(2.0f) {}
 
+glm::vec3 Camera::GetPosition() const
+{
+	return pos;
+}
+
 glm::mat4 Camera::GetView() const
 {
 	return glm::lookAt(pos, pos + front, up);
@@ -35,6 +40,10 @@ void Camera::OnUpdate(GLFWwindow* window, float dTime)
 		pos -= glm::normalize(glm::cross(front, up)) * cameraSpeed * dTime;
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 		pos += glm::normalize(glm::cross(front, up)) * cameraSpeed * dTime;
+	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+		pos += cameraSpeed * dTime * up;
+	if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
+		pos -= cameraSpeed * dTime * up;
 }
 
 void Camera::OnMouseScrolled(double xoffset, double yoffset)
@@ -81,4 +90,9 @@ void Camera::OnMouseMoved(double xpos, double ypos)
 	tempfront.y = sin(glm::radians(pitch));
 	tempfront.z = cos(glm::radians(pitch)) * sin(glm::radians(yaw));
 	front = glm::normalize(tempfront);
+}
+
+void Camera::Translate(const glm::vec3& change)
+{
+	pos += change;
 }
